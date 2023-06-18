@@ -1,0 +1,77 @@
+openapi: 3.0.3
+info:
+  title: Open ID Connect OpenID Provider API
+  description: |-
+    This is the OIDC OpenID Provider API documentation.
+  termsOfService: https://localhost:1234
+  contact:
+    email: morning.night.dream@example.com
+  license:
+    name: MIT
+  version: 0.0.1
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+  - url: http://localhost:1234
+tags:
+  - name: oidc
+    description: OIDC
+paths:
+  /.well-known/openid-configuration:
+    get:
+      tags:
+        - oidc
+      summary: OpenID Provider Configuration
+      description: OpenID Provider Configuration
+      operationId: openIDConfiguration
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OpenIDConfigurationSchema'
+        '500':
+          description: Internal Server Error
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      name: api-key
+      in: header
+  schemas:
+    OpenIDConfigurationSchema:
+      type: object
+      properties:
+        issuer:
+          type: string
+          description: http://localhost:1234
+          format: uri
+          example: http://localhost:1234
+        authorization_endpoint:
+          type: string
+          description: http://localhost:1234/auth
+          format: uri
+          example: http://localhost:1234/auth
+        token_endpoint:
+          type: string
+          description: http://localhost:1234/auth
+          format: uri
+          example: http://localhost:1234/auth
+        userinfo_endpoint:
+          type: string
+          description: http://localhost:1234/userinfo
+          format: uri
+          example: http://localhost:1234/userinfo
+        revocation_endpoint:
+          type: string
+          description: http://localhost:1234/revoke
+          format: uri
+          example: http://localhost:1234/revoke
+      required:
+        - "issuer"
+        - "authorization_endpoint"
+        - "token_endpoint"
+        - "userinfo_endpoint"
+        - "revocation_endpoint"
