@@ -8,7 +8,7 @@ type OpenIDConfigurationSchema struct {
 	// AuthorizationEndpoint http://localhost:1234/op/auth
 	AuthorizationEndpoint string `json:"authorization_endpoint"`
 
-	// Issuer http://localhost:1234
+	// Issuer http://localhost:1234/op
 	Issuer string `json:"issuer"`
 
 	// RevocationEndpoint http://localhost:1234/op/revoke

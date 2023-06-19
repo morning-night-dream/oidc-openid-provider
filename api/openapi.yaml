@@ -51,7 +51,7 @@ paths:
               schema:
                 type: string
                 format: uri
-                example: http://localhost:1234/auth/callback
+                example: http://localhost:1234/rp/auth/callback
         '500':
           description: Internal Server Error
 components:
@@ -66,9 +66,9 @@ components:
       properties:
         issuer:
           type: string
-          description: http://localhost:1234
+          description: http://localhost:1234/op
           format: uri
-          example: http://localhost:1234
+          example: http://localhost:1234/op
         authorization_endpoint:
           type: string
           description: http://localhost:1234/op/auth
@@ -128,9 +128,9 @@ components:
           example: client_id
         redirect_uri:
           type: string
-          description: http://localhost:8080
+          description: http://localhost:1234/rp/auth/callback
           format: uri
-          example: http://localhost:8080
+          example: http://localhost:1234/rp/auth/callback
         state:
           type: string
           description: state
@@ -205,4 +205,3 @@ components:
         - "acr_values"
         - "code_challenge"
         - "code_challenge_method"
-
