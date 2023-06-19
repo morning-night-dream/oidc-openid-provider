@@ -88,10 +88,25 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 type ClientInterface interface {
 	// OpenIDConfiguration request
 	OpenIDConfiguration(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// Auth request
+	Auth(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) OpenIDConfiguration(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewOpenIDConfigurationRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) Auth(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAuthRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +126,34 @@ func NewOpenIDConfigurationRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/.well-known/openid-configuration")
+	operationPath := fmt.Sprintf("/op/.well-known/openid-configuration")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewAuthRequest generates requests for Auth
+func NewAuthRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/op/auth")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -174,6 +216,9 @@ func WithBaseURL(baseURL string) ClientOption {
 type ClientWithResponsesInterface interface {
 	// OpenIDConfiguration request
 	OpenIDConfigurationWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*OpenIDConfigurationResponse, error)
+
+	// Auth request
+	AuthWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*AuthResponse, error)
 }
 
 type OpenIDConfigurationResponse struct {
@@ -198,6 +243,27 @@ func (r OpenIDConfigurationResponse) StatusCode() int {
 	return 0
 }
 
+type AuthResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r AuthResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r AuthResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 // OpenIDConfigurationWithResponse request returning *OpenIDConfigurationResponse
 func (c *ClientWithResponses) OpenIDConfigurationWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*OpenIDConfigurationResponse, error) {
 	rsp, err := c.OpenIDConfiguration(ctx, reqEditors...)
@@ -205,6 +271,15 @@ func (c *ClientWithResponses) OpenIDConfigurationWithResponse(ctx context.Contex
 		return nil, err
 	}
 	return ParseOpenIDConfigurationResponse(rsp)
+}
+
+// AuthWithResponse request returning *AuthResponse
+func (c *ClientWithResponses) AuthWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*AuthResponse, error) {
+	rsp, err := c.Auth(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAuthResponse(rsp)
 }
 
 // ParseOpenIDConfigurationResponse parses an HTTP response from a OpenIDConfigurationWithResponse call
@@ -228,6 +303,22 @@ func ParseOpenIDConfigurationResponse(rsp *http.Response) (*OpenIDConfigurationR
 		}
 		response.JSON200 = &dest
 
+	}
+
+	return response, nil
+}
+
+// ParseAuthResponse parses an HTTP response from a AuthWithResponse call
+func ParseAuthResponse(rsp *http.Response) (*AuthResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &AuthResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
 	}
 
 	return response, nil

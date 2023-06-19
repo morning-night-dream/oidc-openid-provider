@@ -13,8 +13,11 @@ import (
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// OpenID Provider Configuration
-	// (GET /.well-known/openid-configuration)
+	// (GET /op/.well-known/openid-configuration)
 	OpenIDConfiguration(w http.ResponseWriter, r *http.Request)
+	// Authentication Request
+	// (GET /op/auth)
+	Auth(w http.ResponseWriter, r *http.Request)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -32,6 +35,21 @@ func (siw *ServerInterfaceWrapper) OpenIDConfiguration(w http.ResponseWriter, r 
 
 	var handler http.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.OpenIDConfiguration(w, r)
+	})
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// Auth operation middleware
+func (siw *ServerInterfaceWrapper) Auth(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var handler http.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.Auth(w, r)
 	})
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -155,7 +173,10 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	}
 
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/.well-known/openid-configuration", wrapper.OpenIDConfiguration)
+		r.Get(options.BaseURL+"/op/.well-known/openid-configuration", wrapper.OpenIDConfiguration)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/op/auth", wrapper.Auth)
 	})
 
 	return r

@@ -43,3 +43,9 @@ func (hdl *Handler) OpenIDConfiguration(
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 }
+
+func (hdl *Handler) Auth(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+}
