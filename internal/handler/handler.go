@@ -31,10 +31,10 @@ func (hdl *Handler) OpenIDConfiguration(
 ) {
 	res := openapi.OpenIDConfigurationSchema{
 		Issuer:                "http://localhost:1234",
-		AuthorizationEndpoint: "http://localhost:1234/auth",
-		TokenEndpoint:         "http://localhost:1234/token",
-		UserinfoEndpoint:      "http://localhost:1234/userinfo",
-		RevocationEndpoint:    "http://localhost:1234/revoke",
+		AuthorizationEndpoint: "http://localhost:1234/op/auth",
+		TokenEndpoint:         "http://localhost:1234/op/token",
+		UserinfoEndpoint:      "http://localhost:1234/op/userinfo",
+		RevocationEndpoint:    "http://localhost:1234/op/revoke",
 	}
 
 	if err := json.NewEncoder(w).Encode(res); err != nil {

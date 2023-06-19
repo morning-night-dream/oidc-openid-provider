@@ -71,24 +71,24 @@ components:
           example: http://localhost:1234
         authorization_endpoint:
           type: string
-          description: http://localhost:1234/auth
+          description: http://localhost:1234/op/auth
           format: uri
-          example: http://localhost:1234/auth
+          example: http://localhost:1234/op/auth
         token_endpoint:
           type: string
-          description: http://localhost:1234/auth
+          description: http://localhost:1234/op/token
           format: uri
-          example: http://localhost:1234/auth
+          example: http://localhost:1234/op/token
         userinfo_endpoint:
           type: string
-          description: http://localhost:1234/userinfo
+          description: http://localhost:1234/op/userinfo
           format: uri
-          example: http://localhost:1234/userinfo
+          example: http://localhost:1234/op/userinfo
         revocation_endpoint:
           type: string
-          description: http://localhost:1234/revoke
+          description: http://localhost:1234/op/revoke
           format: uri
-          example: http://localhost:1234/revoke
+          example: http://localhost:1234/op/revoke
       required:
         - "issuer"
         - "authorization_endpoint"

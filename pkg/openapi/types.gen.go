@@ -5,18 +5,18 @@ package openapi
 
 // OpenIDConfigurationSchema defines model for OpenIDConfigurationSchema.
 type OpenIDConfigurationSchema struct {
-	// AuthorizationEndpoint http://localhost:1234/auth
+	// AuthorizationEndpoint http://localhost:1234/op/auth
 	AuthorizationEndpoint string `json:"authorization_endpoint"`
 
 	// Issuer http://localhost:1234
 	Issuer string `json:"issuer"`
 
-	// RevocationEndpoint http://localhost:1234/revoke
+	// RevocationEndpoint http://localhost:1234/op/revoke
 	RevocationEndpoint string `json:"revocation_endpoint"`
 
-	// TokenEndpoint http://localhost:1234/auth
+	// TokenEndpoint http://localhost:1234/op/token
 	TokenEndpoint string `json:"token_endpoint"`
 
-	// UserinfoEndpoint http://localhost:1234/userinfo
+	// UserinfoEndpoint http://localhost:1234/op/userinfo
 	UserinfoEndpoint string `json:"userinfo_endpoint"`
 }
